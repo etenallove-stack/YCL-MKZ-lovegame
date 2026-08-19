@@ -1,0 +1,15 @@
+# 原圖備份 —— 這些是壓縮前 / 修圖前的本機備份，
+# 留在自己電腦就好，不需要佔用 GitHub 的空間（約 38MB）。
+data/backgrounds_original/
+data/sprites_original/
+data/gapfix_original/
+
+# 作業系統產生的雜物
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 編輯器
+.vscode/
+.idea/
+*.swp

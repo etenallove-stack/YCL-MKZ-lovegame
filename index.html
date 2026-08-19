@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>櫻漫長坂 歲月同舟</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div id="viewport">
+  <!-- 所有內容都畫在 1280x720 的虛擬畫布上，再整體縮放去貼合視窗 -->
+  <div id="stage">
+
+    <div id="bg"></div>
+    <div id="propsBack"></div>     <!-- 場景物件：人物「後面」 -->
+    <div id="chars"></div>
+    <div id="propsFront"></div>    <!-- 場景物件：人物「前面」 -->
+    <canvas id="fx" width="1280" height="720"></canvas>
+    <div id="hotspots"></div>
+
+    <!-- 探索階段的光玉計數 -->
+    <div id="orbBar" hidden></div>
+    <div id="hint" hidden></div>
+
+    <!-- 對話框 -->
+    <div id="box" hidden>
+      <div id="who"></div>
+      <p id="text"></p>
+      <div id="next">▼</div>
+    </div>
+
+    <!-- 字卡：黑幕標題、結尾 CG -->
+    <div id="card" hidden><p id="cardText"></p></div>
+
+    <!-- 選項 -->
+    <div id="choices" hidden></div>
+
+    <!-- 右上角功能鈕 -->
+    <div id="menu">
+      <button data-act="redo" disabled>重選</button>
+      <button data-act="music" class="on">音樂</button>
+      <button data-act="auto">自動</button>
+      <button data-act="log">回顧</button>
+      <button data-act="save">存檔</button>
+      <button data-act="load">讀檔</button>
+    </div>
+
+    <!-- 對話紀錄 -->
+    <div id="backlog" hidden>
+      <div class="panel">
+        <h2>對話紀錄</h2>
+        <div id="backlogList"></div>
+        <button id="backlogClose">關閉</button>
+      </div>
+    </div>
+
+    <div id="toast" hidden></div>
+    <div id="flash"></div>
+  </div>
+</div>
+
+<script src="story/story.js"></script>
+<script src="assets/js/effects.js"></script>
+<script src="assets/js/engine.js"></script>
+</body>
+</html>
