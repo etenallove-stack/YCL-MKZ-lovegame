@@ -180,9 +180,39 @@ body {
 
 /* ---------- 光玉計數 ---------- */
 
+/* ---------- 左上角：回到主畫面 ---------- */
+
+#homeBtn {
+  position: absolute;
+  top: 20px; left: 24px;
+  z-index: 30;
+  font: inherit;
+  font-size: 15px;
+  color: rgba(255, 255, 255, .82);
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(10, 16, 32, .5);
+  backdrop-filter: blur(6px);
+  transition: all .18s ease;
+}
+
+#homeBtn:hover { background: rgba(40, 58, 110, .7); color: #fff; }
+
+/* 按第一下先變色警告，再按一次才真的重來 */
+#homeBtn.arm {
+  border-color: #ffb3b3;
+  color: #ffb3b3;
+  background: rgba(70, 22, 32, .6);
+}
+
+/* ---------- 光玉計數 ---------- */
+
 #orbBar {
   position: absolute;
-  top: 24px; left: 28px;
+  /* 讓開左上角的「主畫面」按鈕 */
+  top: 24px; left: 124px;
   display: flex;
   align-items: center;
   gap: 12px;

@@ -25,7 +25,7 @@ var Game = (function () {
 
   function init() {
     ['viewport', 'stage', 'bg', 'fx', 'chars', 'propsBack', 'propsFront', 'hotspots', 'orbBar', 'hint',
-     'box', 'who', 'text', 'next', 'choices', 'card', 'cardText', 'menu',
+     'box', 'who', 'text', 'next', 'choices', 'card', 'cardText', 'menu', 'homeBtn',
      'backlog', 'backlogList', 'backlogClose', 'toast']
       .forEach(function (id) { el[id] = document.getElementById(id); });
 
@@ -45,6 +45,7 @@ var Game = (function () {
       if (audio && audio.paused) tryPlay();
     }, true);
     el.menu.addEventListener('click', onMenuClick);
+    el.homeBtn.addEventListener('click', onHomeClick);
     el.backlogClose.addEventListener('click', function (e) {
       e.stopPropagation();
       el.backlog.hidden = true;
@@ -402,6 +403,10 @@ var Game = (function () {
     // 標記 reset 的場景代表「一輪的起點」（標題畫面）。
     // 沒有這個的話，玩完一輪回到標題再開始，光玉和好感度還留著，
     // 探索階段會因為光玉已經集滿而直接被跳過。
+    // 已經在主畫面就不用再顯示「回到主畫面」
+    el.homeBtn.hidden = !!s.reset;
+    disarmHome();
+
     if (s.reset) {
       newState();
       backlog = [];
@@ -722,6 +727,31 @@ var Game = (function () {
 
     if (isTyping()) finishTyping(seq.lines[seq.i].text);
     else advance();
+  }
+
+  /**
+   * 左上角「主畫面」：回到標題重玩。
+   * 標題那一幕標了 reset，所以進度會整個清乾淨。
+   * 這會丟掉目前的進度，所以要按兩次才算數 —— 誤觸一下不會直接重來。
+   */
+  var homeArmed = null;
+
+  function disarmHome() {
+    clearTimeout(homeArmed);
+    homeArmed = null;
+    el.homeBtn.classList.remove('arm');
+  }
+
+  function onHomeClick(e) {
+    e.stopPropagation();
+    if (homeArmed) {
+      disarmHome();
+      goto(STORY.start);
+      return;
+    }
+    el.homeBtn.classList.add('arm');
+    toast('再按一次回到主畫面（進度會重來）');
+    homeArmed = setTimeout(disarmHome, 3200);
   }
 
   function onMenuClick(e) {
