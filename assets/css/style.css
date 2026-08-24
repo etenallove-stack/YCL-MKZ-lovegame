@@ -377,6 +377,28 @@ body {
   50%      { opacity: 1; }
 }
 
+/* ---------- 浮現的解謎數字 ---------- */
+
+.reveal-num {
+  position: absolute;
+  left: 50%; top: 46%;
+  z-index: 24;
+  font-size: 240px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: #fffbe8;
+  text-shadow:
+    0 0 40px rgba(255, 222, 138, .95),
+    0 0 100px rgba(255, 190, 80, .8),
+    0 8px 34px rgba(0, 0, 0, .6);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.4);
+  transition: opacity .7s ease, transform .9s cubic-bezier(.2, .9, .3, 1.35);
+  pointer-events: none;
+}
+
+.reveal-num.shown { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
 /* ---------- 選項 ---------- */
 
 #choices {

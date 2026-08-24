@@ -434,6 +434,7 @@ var Game = (function () {
     el.orbBar.hidden = true;
     el.hint.hidden = true;
     if (doodle) { doodle.remove(); doodle = null; }
+    if (revealed) { revealed.remove(); revealed = null; }
 
     if (s.bg) setBackground(s.bg);
     if (s.bgm) playBgm(s.bgm);
@@ -461,6 +462,7 @@ var Game = (function () {
      沒有 next 就停在這裡（用來收尾）。 */
 
   var cardTimer = null;
+  var revealed = null;      // 浮現的解謎數字，換場景時收掉
 
   function startCard() {
     clearChars();
@@ -474,6 +476,9 @@ var Game = (function () {
     setTimeout(function () { el.card.classList.add('shown'); }, 40);
 
     if (scene.text) backlog.push({ who: '', text: scene.text });
+
+    // 字卡上也可以藏熱區（結尾的解謎數字）
+    if (scene.hotspots && scene.hotspots.length) buildHotspots();
 
     // duration: 0 代表不自動前進，等玩家點畫面（標題畫面用的就是這個）
     if (scene.next && scene.duration !== 0) {
@@ -641,17 +646,25 @@ var Game = (function () {
     if (state.done[key] && !h.repeatable) return;
     if (seq) return;                     // 正在播台詞就別受理
 
+    // 字卡場景也可以放熱區（結尾藏的解謎數字），
+    // 但光玉計數、集滿判定那些只屬於探索場景，不能一起跑。
+    var isExplore = scene.type === 'explore';
+
     // 播台詞時整層熱區收起來。只把 pointerEvents 關掉的話，
     // 那些呼吸的光點還會亮在畫面上，跟登場的人物疊在一起。
     el.hotspots.hidden = true;
     el.hint.hidden = true;
-    el.orbBar.hidden = true;
+    if (isExplore) el.orbBar.hidden = true;
 
     // 熱區中心（stage 座標），特效和光玉都從這裡發生
     var cx = (h.x + h.w / 2) / 100 * 1280;
     var cy = (h.y + h.h / 2) / 100 * 720;
 
     if (h.effect) runEffect(h.effect, cx, cy);
+    if (h.reveal) {
+      if (revealed) revealed.remove();
+      revealed = Effects.reveal(h.reveal);
+    }
 
     var firstTime = !state.done[key];
     state.done[key] = true;
@@ -673,13 +686,14 @@ var Game = (function () {
       if (!h.repeatable) node.classList.add('done');
 
       // 光玉要飛回計數器，所以先把計數器放回畫面上
-      el.orbBar.hidden = false;
+      if (isExplore) el.orbBar.hidden = false;
 
       // 會發光但不給光玉的地方，要講清楚，不然玩家會以為是 bug。
       // 彩蛋（secret）本來就不發光，玩家沒有在期待光玉，所以不提示。
-      if (!h.orb && !h.secret) {
+      if (isExplore && !h.orb && !h.secret) {
         toast(h.missHint || '……好像不是這個。');
       }
+      if (h.foundHint) toast(h.foundHint);
 
       if (giveOrb) {
         Effects.orbFly(cx, cy, function () {
@@ -694,6 +708,7 @@ var Game = (function () {
 
     function afterHotspot() {
       el.hotspots.hidden = false;
+      if (!isExplore) return;   // 字卡上的熱區到這裡就結束，沒有光玉也沒有集滿判定
       if (!checkExploreComplete()) showHint();
     }
   }

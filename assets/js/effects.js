@@ -230,6 +230,28 @@ var Effects = (function () {
     setTimeout(function () { el.remove(); }, ms + 200);
   }
 
+  /**
+   * 在畫面正中央浮現一個大大的發光文字（藏起來的解謎數字用這個）。
+   * 回傳一個可以 remove 的把手，換場景時由引擎收掉。
+   */
+  function reveal(text) {
+    var stage = document.getElementById('stage');
+    var el = document.createElement('div');
+    el.className = 'reveal-num';
+    el.textContent = text;
+    stage.appendChild(el);
+
+    flash(0.55, 700);
+    setTimeout(function () { el.classList.add('shown'); }, 40);
+
+    return {
+      remove: function () {
+        el.classList.remove('shown');
+        setTimeout(function () { el.remove(); }, 700);
+      }
+    };
+  }
+
   /** 塗鴉：糰子大家族的圖案，用 SVG 畫，不需要圖檔 */
   function dangoDoodle(x, y) {
     var stage = document.getElementById('stage');
@@ -284,6 +306,7 @@ var Effects = (function () {
     flash: flash,
     shake: shake,
     glow: glow,
+    reveal: reveal,
     orbFly: orbFly,
     dangoDoodle: dangoDoodle
   };
