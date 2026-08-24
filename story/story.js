@@ -396,7 +396,7 @@ var STORY = {
     act2x_mystery: {
       type: 'dialogue',
       bg: 'corridor_hall',
-      bgm: 'warm_daily',
+      bgm: 'mystery',        // 音檔還沒進來，會先沿用上一首
       clearChars: true,
       lines: [
         { who: 'narration', text: '午休結束的鐘聲響過，我們並肩走在通往教室的走廊上。' },
@@ -634,7 +634,7 @@ var STORY = {
     bonus_1_store: {
       type: 'dialogue',
       bg: 'store_front',
-      bgm: 'warm_daily',
+      bgm: 'bonus',          // 音檔還沒進來，會先沿用上一首
       clearChars: true,
       lines: [
         { who: 'narration', text: '放學後的夕陽把影子拉得很長。' },

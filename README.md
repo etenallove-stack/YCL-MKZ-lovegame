@@ -364,6 +364,9 @@ powershell -File tools/clean_gaps.ps1 -Source assets/characters -WhatIf
 | 溫柔的奇蹟 | 同上（共用） | 第 4 幕 A |
 | 溫暖的光 | 同上（共用） | 第 4 幕 B |
 | 糰子大家族 | `dango_family.mp3` | 第 4 幕 C |
+| 櫻花飛舞的坡道／光坂高校的坡道 | 同上（共用） | 第 5、6、7 幕 |
+| 神秘的同學 | `mystery.mp3` ⬜ 還沒放 | 幕間小劇場 |
+| 彩蛋 | `bonus.mp3` ⬜ 還沒放 | 載具之王 |
 | 櫻花飛舞的坡道 | 同上（共用） | 第 5 幕 |
 | 光坂高校的坡道 | 同上（共用） | 第 6 幕 A／B／C、第 7 幕 |
 
