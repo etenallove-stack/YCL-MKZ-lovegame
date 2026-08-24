@@ -104,13 +104,21 @@ body {
 /* ---------- 探索階段：可點擊的熱區 ---------- */
 
 /* 要壓在 #card 上面（z-index 22），否則字卡會蓋住結尾藏的那個隱藏點，
-   滑鼠實際點下去會打在字卡上，熱區永遠觸發不了。 */
-#hotspots { position: absolute; inset: 0; z-index: 23; }
+   滑鼠實際點下去會打在字卡上，熱區永遠觸發不了。
+   但容器本身一定要 pointer-events: none —— 它蓋滿整個畫面，
+   就算裡面是空的也會攔截點擊，選項會變成按不動。真正接收點擊的是 .hotspot。 */
+#hotspots {
+  position: absolute;
+  inset: 0;
+  z-index: 23;
+  pointer-events: none;
+}
 
 .hotspot {
   position: absolute;
   border-radius: 50%;
   cursor: pointer;
+  pointer-events: auto;      /* 容器是 none，這裡要收回來 */
   /* 常駐的柔光，讓玩家一眼就知道這裡可以點 */
   background: radial-gradient(circle, rgba(255, 246, 214, .22) 0%, rgba(255, 246, 214, 0) 68%);
   animation: breathe 2.6s ease-in-out infinite;
