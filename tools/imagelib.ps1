@@ -165,9 +165,13 @@ public static class SpriteCut
     //   thin      bbox is elongated (a gap between two shapes), not a blob.
     //             This is what keeps a round thought bubble.
     //   big       small speckles are left alone; they are usually artwork detail.
+    //   grey      the region's average colour is nearly colourless. Sheet white and
+    //             the grey haze behind a photo cut-out both are; skin, hair and cloth
+    //             are not. This is what lets `bright` be lowered far enough to catch
+    //             a grey gap without eating into pale skin.
     //
     // Returns how many pixels were erased.
-    public static int RemoveTrappedBackground(Buf b, int hardWhite, int maxGap, int minArea, double minAspect) {
+    public static int RemoveTrappedBackground(Buf b, int bright, int maxChroma, int maxGap, int minArea, double minAspect) {
         int n = b.W * b.H;
 
         // How far is each pixel from transparency? (multi-source BFS, capped at maxGap)
@@ -197,7 +201,7 @@ public static class SpriteCut
         for (int i = 0; i < n; i++) {
             int p = i * 4;
             int mn = Math.Min(b.P[p + 2], Math.Min(b.P[p + 1], b.P[p]));
-            isWhite[i] = b.P[p + 3] > 200 && mn >= hardWhite;
+            isWhite[i] = b.P[p + 3] > 200 && mn >= bright;
         }
 
         int[] label = new int[n];
@@ -211,6 +215,7 @@ public static class SpriteCut
             stack[sp++] = s;
             label[s] = 1;
             int area = 0, minx = b.W, maxx = -1, miny = b.H, maxy = -1, near = int.MaxValue;
+            long sumR = 0, sumG = 0, sumB = 0;
             int head = 0;
 
             while (sp > head) {
@@ -222,6 +227,8 @@ public static class SpriteCut
                 if (y < miny) miny = y;
                 if (y > maxy) maxy = y;
                 if (dist[idx] < near) near = dist[idx];
+                int q = idx * 4;
+                sumB += b.P[q]; sumG += b.P[q + 1]; sumR += b.P[q + 2];
 
                 for (int d = 0; d < 4; d++) {
                     int nx = x, ny = y;
@@ -234,8 +241,62 @@ public static class SpriteCut
 
             int w = maxx - minx + 1, h = maxy - miny + 1;
             double aspect = (double)Math.Max(w, h) / Math.Max(1, Math.Min(w, h));
-            if (near <= maxGap && area >= minArea && aspect >= minAspect) {
+
+            int aR = (int)(sumR / area), aG = (int)(sumG / area), aB = (int)(sumB / area);
+            int chroma = Math.Max(aR, Math.Max(aG, aB)) - Math.Min(aR, Math.Min(aG, aB));
+
+            if (chroma <= maxChroma && near <= maxGap && area >= minArea && aspect >= minAspect) {
                 for (int k = 0; k < sp; k++) { b.P[stack[k] * 4 + 3] = 0; }
+                erased += area;
+            }
+        }
+        return erased;
+    }
+
+    // Deletes small leftovers hugging the left/right edge of a cut-out cell.
+    //
+    // When a sheet's figures are joined by their effect auras there is no clean
+    // gap to cut on, so each cell keeps a sliver of its neighbour. Those slivers
+    // are small AND sit entirely within `margin` of an edge, while the figure and
+    // its own effects (hearts, rain cloud) are either large or well inside.
+    // Returns how many pixels were erased.
+    public static int RemoveEdgeSpecks(Buf b, int margin, int maxArea, int alphaMin) {
+        int n = b.W * b.H;
+        int[] label = new int[n];
+        int[] stack = new int[n];
+        int erased = 0;
+
+        for (int s = 0; s < n; s++) {
+            if (label[s] != 0) continue;
+            if (b.P[s * 4 + 3] <= alphaMin) { label[s] = -1; continue; }
+
+            int sp = 0, head = 0;
+            stack[sp++] = s;
+            label[s] = 1;
+            int area = 0, minx = b.W, maxx = -1;
+
+            while (sp > head) {
+                int idx = stack[head++];
+                area++;
+                int x = idx % b.W, y = idx / b.W;
+                if (x < minx) minx = x;
+                if (x > maxx) maxx = x;
+
+                for (int d = 0; d < 4; d++) {
+                    int nx = x, ny = y;
+                    if (d == 0) nx--; else if (d == 1) nx++; else if (d == 2) ny--; else ny++;
+                    if (nx < 0 || ny < 0 || nx >= b.W || ny >= b.H) continue;
+                    int ni = ny * b.W + nx;
+                    if (label[ni] != 0) continue;
+                    if (b.P[ni * 4 + 3] <= alphaMin) { label[ni] = -1; continue; }
+                    label[ni] = 1;
+                    stack[sp++] = ni;
+                }
+            }
+
+            bool hugsEdge = (maxx < margin) || (minx >= b.W - margin);
+            if (area <= maxArea && hugsEdge) {
+                for (int k = 0; k < sp; k++) b.P[stack[k] * 4 + 3] = 0;
                 erased += area;
             }
         }

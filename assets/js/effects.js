@@ -181,6 +181,36 @@ var Effects = (function () {
     setTimeout(finish, 1040);
   }
 
+  /**
+   * 畫面震動。
+   * stage 的 transform 是由引擎的 fitStage 在管的（置中 + 縮放），
+   * 所以震動不能直接改它，改用外層的 viewport 來位移。
+   */
+  function shake(strength, ms) {
+    var vp = document.getElementById('viewport');
+    if (!vp || vp._shaking) return;
+    vp._shaking = true;
+
+    strength = strength || 14;
+    ms = ms || 520;
+    var t0 = Date.now();
+
+    var timer = setInterval(function () {
+      var p = (Date.now() - t0) / ms;
+      if (p >= 1) {
+        clearInterval(timer);
+        vp.style.transform = '';
+        vp._shaking = false;
+        return;
+      }
+      // 幅度隨時間衰減
+      var a = strength * (1 - p);
+      var dx = (Math.random() * 2 - 1) * a;
+      var dy = (Math.random() * 2 - 1) * a;
+      vp.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)';
+    }, 16);
+  }
+
   /** 在畫面某處亮起一團柔光，然後淡掉 */
   function glow(x, y, radius, ms) {
     radius = radius || 180;
@@ -252,6 +282,7 @@ var Effects = (function () {
     petalStorm: petalStorm,
     clear: clear,
     flash: flash,
+    shake: shake,
     glow: glow,
     orbFly: orbFly,
     dangoDoodle: dangoDoodle

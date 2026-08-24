@@ -306,6 +306,13 @@ var Game = (function () {
   function showLine(line) {
     if (line.rename && line.who) state.names[line.who] = line.rename;
     if (line.bg) setBackground(line.bg);
+
+    // hide: 'charId' 讓某個角色從畫面上退場（配合 vanish 特效就是憑空消失）
+    if (line.hide) {
+      var gone = el.chars.querySelector('[data-char="' + line.hide + '"]');
+      if (gone) gone.classList.add('hidden');
+    }
+
     if (line.effect) runEffect(line.effect, 640, 360);
 
     var isNarration = !line.who || line.who === 'narration';
@@ -377,6 +384,12 @@ var Game = (function () {
       Effects.flash(0.35, 600);
     } else if (name === 'flash') {
       Effects.flash();
+    } else if (name === 'shake') {
+      Effects.shake();
+    } else if (name === 'vanish') {
+      // 憑空消失：白光一閃再震一下
+      Effects.flash(0.9, 700);
+      Effects.shake(10, 420);
     }
   }
 
@@ -645,6 +658,12 @@ var Game = (function () {
 
       // 光玉要飛回計數器，所以先把計數器放回畫面上
       el.orbBar.hidden = false;
+
+      // 會發光但不給光玉的地方，要講清楚，不然玩家會以為是 bug。
+      // 彩蛋（secret）本來就不發光，玩家沒有在期待光玉，所以不提示。
+      if (!h.orb && !h.secret) {
+        toast(h.missHint || '……好像不是這個。');
+      }
 
       if (giveOrb) {
         Effects.orbFly(cx, cy, function () {

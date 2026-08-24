@@ -22,7 +22,11 @@ param(
   [string[]]$Erase,
   # 最小色版值到多少算純背景 / 算背景的柔邊
   [int]$HardWhite = 243,
-  [int]$SoftWhite = 218
+  [int]$SoftWhite = 218,
+  # 圖與圖之間沒有空白（特效光暈相連）時，每一格難免切到隔壁一點點。
+  # 這兩個值決定要清掉多小、多靠邊的殘片；設 0 就完全不清。
+  [int]$EdgeMargin = 45,
+  [int]$SpeckArea = 4000
 )
 
 $ErrorActionPreference = 'Stop'
@@ -58,6 +62,13 @@ function Get-Edges([int[]]$profile, [int]$size, [int]$n, [int]$span) {
       $lo = $best; while ($lo -gt 0 -and $profile[$lo - 1] -le $blankMax) { $lo-- }
       $hi = $best; while ($hi -lt $size - 1 -and $profile[$hi + 1] -le $blankMax) { $hi++ }
       $best = [int](($lo + $hi) / 2)
+    } else {
+      # 完全沒有空白（例如特效光暈把相鄰的圖連在一起）時，
+      # 退而求其次找「內容最少」的那一欄，比硬切在等距位置準得多。
+      $minVal = [int]::MaxValue
+      for ($p = [Math]::Max(1, $target - $window); $p -le [Math]::Min($size - 1, $target + $window); $p++) {
+        if ($profile[$p] -lt $minVal) { $minVal = $profile[$p]; $best = $p }
+      }
     }
     $edges += $best
   }
@@ -90,10 +101,14 @@ $pad = 4
 $ux = [Math]::Max(0, $minx - $pad); $uy = [Math]::Max(0, $miny - $pad)
 $uw = $maxx - $ux + $pad; $uh = $maxy - $uy + $pad
 
+$specks = 0
 for ($i = 0; $i -lt $cells.Count; $i++) {
   $label = if ($Names -and $i -lt $Names.Count) { $Names[$i] } else { "expr" }
   $file = "{0:d2}_{1}.png" -f ($i + 1), $label
-  [SpriteCut]::Save([SpriteCut]::Crop($cells[$i], $ux, $uy, $uw, $uh), (Join-Path $OutDir $file))
+  $piece = [SpriteCut]::Crop($cells[$i], $ux, $uy, $uw, $uh)
+  if ($EdgeMargin -gt 0) { $specks += [SpriteCut]::RemoveEdgeSpecks($piece, $EdgeMargin, $SpeckArea, 25) }
+  [SpriteCut]::Save($piece, (Join-Path $OutDir $file))
 }
+if ($specks -gt 0) { Write-Output "清掉切到隔壁的殘片 $specks 個像素" }
 
 Write-Output "$($cells.Count) sprites -> $OutDir  ($uw x $uh each)"

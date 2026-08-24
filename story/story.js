@@ -21,6 +21,14 @@ var CHARACTERS = {
     faces: ['smile', 'laugh', 'shy', 'troubled', 'confused', 'thinking', 'surprised', 'nervous',
             'crying', 'sad', 'angry', 'neutral', 'rage', 'flustered', 'smirk', 'deadpan']
   },
+  mystery: {
+    // 一開始只知道是「神秘的同學」，等他自報名號才換掉
+    name: '神秘的同學',
+    dir: 'assets/characters/mystery',
+    pos: 'center',
+    faces: ['neutral', 'laugh', 'sad', 'angry', 'panic',
+            'surprised', 'cool', 'lovestruck', 'smug', 'exhausted']
+  },
   heroine: {
     // 目前的劇本裡她沒有自我介紹的橋段，所以名字一開始就顯示出來。
     // 想保留「？？？」的懸念，把這裡改回 '？？？'，
@@ -75,6 +83,22 @@ var BACKGROUNDS = {
     fallback:
       'radial-gradient(circle at 18% 22%, rgba(255,170,205,.95) 0 20%, rgba(255,170,205,0) 46%),' +
       'linear-gradient(180deg,#5c86c9 0%,#9db6e0 26%,#e7c7cf 46%,#d9c3cd 58%,#9a93a6 72%,#7b7686 100%)'
+  },
+  corridor_hall: {
+    label: '教室走廊',
+    fallback: 'linear-gradient(180deg,#cfd8e4 0%,#e8e2d4 46%,#c9ad84 62%,#a8895f 100%)'
+  },
+  classroom_shadow: {
+    label: '教室・窗邊的黑影',
+    fallback:
+      'radial-gradient(ellipse 55% 70% at 30% 40%, rgba(255,196,140,.8), rgba(255,196,140,0) 70%),' +
+      'linear-gradient(180deg,#6d5642 0%,#997254 34%,#b4885f 58%,#7d6046 100%)'
+  },
+  classroom_empty: {
+    label: '教室・空無一人',
+    fallback:
+      'radial-gradient(ellipse 55% 70% at 30% 40%, rgba(255,204,150,.8), rgba(255,204,150,0) 70%),' +
+      'linear-gradient(180deg,#6d5642 0%,#997254 34%,#b4885f 58%,#7d6046 100%)'
   },
   classroom_evening: {
     label: '舊校舍教室・傍晚',
@@ -166,6 +190,8 @@ var STORY = {
           x: 1, y: 12, w: 14, h: 28,
           effect: 'petalStorm',
           repeatable: true,                          // 這個可以一直點，純粹好看
+          // 它會發光但不給光玉，點完要講一聲，不然玩家會以為壞掉
+          missHint: '……櫻花很美，但好像不是這個。',
           lines: [
             { who: 'narration', text: '一陣風掃過樹梢，花瓣整片整片地捲了下來。' },
             { who: 'narration', text: '漫天櫻花下，時間彷彿停滯了……' }
@@ -290,7 +316,7 @@ var STORY = {
         { who: 'hero',    face: 'shy',          text: '「沒事的，只要慢慢習慣就好了。」' },
         { who: 'heroine', face: 'smile',        text: '「嗯！聽昱岑同學這麼說，我好像又有勇氣了。」' }
       ],
-      next: 'act3_classroom'
+      next: 'act2x_mystery'
     },
 
     act2b_bench: {
@@ -305,7 +331,7 @@ var STORY = {
         { who: 'hero',    face: 'smile',        text: '「這很正常，換成誰都會害怕的。」' },
         { who: 'heroine', face: 'smile',        text: '「謝謝你聽我說這些，心情放鬆多了。」' }
       ],
-      next: 'act3_classroom'
+      next: 'act2x_mystery'
     },
 
     act2c_fail: {
@@ -335,6 +361,57 @@ var STORY = {
       choices: [
         { text: '回到中庭重選一次', goto: 'act1_courtyard', affection: 0 }
       ]
+    },
+
+    /* ===================================================================
+       幕間小劇場：神秘的同學
+       前半用事件圖（不放立繪，才看得到教室裡的黑影），
+       他轉過來之後才換成空教室 + 他的立繪。
+       =================================================================== */
+    act2x_mystery: {
+      type: 'dialogue',
+      bg: 'corridor_hall',
+      bgm: 'warm_daily',
+      clearChars: true,
+      lines: [
+        { who: 'narration', text: '午休結束的鐘聲響過，我們並肩走在通往教室的走廊上。' },
+        { who: 'heroine', text: '「下午第一節是……數學對吧？」' },
+        { who: 'hero',    text: '「嗯。而且我昨天的習題還沒寫完。」' },
+
+        // 進教室，看見黑影
+        { who: 'narration', bg: 'classroom_shadow', effect: 'flash',
+          text: '推開教室門的瞬間，我們兩個同時停住了腳步。' },
+        { who: 'narration', text: '夕陽的逆光裡，窗邊坐著一個同學。背對著我們，一動也不動地寫著什麼。' },
+        { who: 'narration', text: '整間教室只有他一個人，連呼吸的聲音都聽不見。' },
+
+        { who: 'heroine', text: '「……那個人，是我們班的嗎？」' },
+        { who: 'hero',    text: '「不知道。我從開學到現在，好像沒看過那個位子有人坐。」' },
+        { who: 'heroine', text: '「他從剛剛就完全沒有動耶……要不要叫他一下？」' },
+        { who: 'hero',    text: '「等等，萬一他在專心讀書……」' },
+        { who: 'narration', text: '我們壓低聲音議論了半天，那個背影始終沒有回頭。' },
+        { who: 'narration', text: '就在孟格終於忍不住往前踏出一步的時候——' },
+
+        // 猛然轉身
+        { who: 'mystery', face: 'surprised', bg: 'classroom_empty', effect: 'shake',
+          text: '「——來者何人。」' },
+        { who: 'narration', text: '他猛然轉了過來。' },
+        { who: 'mystery', face: 'smug',  text: '「稱呼在下『美女母狗』即可。」' },
+        // 神秘同學站在畫面正中央，這兩句刻意不放男女主角的立繪，
+        // 不然三個人並排會疊在一起。只顯示名字反而更像被嚇到說不出話。
+        { who: 'hero',    text: '「……蛤？」' },
+        { who: 'heroine', text: '「美、美女……什麼？」' },
+        { who: 'mystery', face: 'cool',  text: '「在下正出發去尋找水上人力車。就此別過。」' },
+
+        // 憑空消失
+        { who: 'narration', effect: 'vanish', hide: 'mystery',
+          text: '話音未落，那個位子上已經空無一人。' },
+        { who: 'narration', text: '椅子甚至沒有發出被推開的聲音。' },
+
+        { who: 'heroine', face: 'surprised', text: '「……剛剛那個，真的存在嗎？」' },
+        { who: 'hero',    face: 'confused',  text: '「至少我們兩個都看到了……大概吧。」' },
+        { who: 'narration', text: '窗外的夕陽，把兩張呆掉的臉照得通紅。' }
+      ],
+      next: 'act3_classroom'
     },
 
     /* ===================================================================

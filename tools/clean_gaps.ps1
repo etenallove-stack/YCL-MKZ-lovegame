@@ -21,6 +21,15 @@
   # 確認沒問題再實際執行
   .\tools\clean_gaps.ps1 -Source assets\characters
 
+.PARAMETER Bright
+  多亮才算背景，預設 243（純白畫紙）。
+  來源是灰霧背景的圖（例如去背自照片的立繪）要調低，例如 180。
+
+.PARAMETER MaxChroma
+  區塊的平均彩度要多低才算「沒有顏色的背景」，預設 12。
+  白紙和灰霧都接近 0，皮膚、頭髮、衣服則遠高於此，
+  所以 Bright 調低時也不會誤刪淺色皮膚。
+
 .PARAMETER MaxGap
   離透明區最遠幾個像素還算「只隔一層線稿」，預設 14。
 
@@ -38,7 +47,8 @@
 param(
   [Parameter(Mandatory)][string]$Source,
   [string]$Filter = "*.png",
-  [int]$HardWhite = 243,
+  [int]$Bright = 243,
+  [int]$MaxChroma = 12,
   [int]$MaxGap = 14,
   [int]$MinArea = 80,
   [double]$MinAspect = 2.2,
@@ -63,7 +73,7 @@ $files = if (Test-Path -LiteralPath $Source -PathType Container) {
 $total = 0
 foreach ($f in $files) {
   $img = [SpriteCut]::Load($f.FullName)
-  $erased = [SpriteCut]::RemoveTrappedBackground($img, $HardWhite, $MaxGap, $MinArea, $MinAspect)
+  $erased = [SpriteCut]::RemoveTrappedBackground($img, $Bright, $MaxChroma, $MaxGap, $MinArea, $MinAspect)
 
   if ($erased -eq 0) {
     Write-Output ("{0,-22} 沒有要清的白縫" -f $f.Name)
