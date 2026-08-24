@@ -399,6 +399,17 @@ var Game = (function () {
     var s = STORY.scenes[sceneId];
     if (!s) { console.error('找不到場景：' + sceneId); return; }
 
+    // 標記 reset 的場景代表「一輪的起點」（標題畫面）。
+    // 沒有這個的話，玩完一輪回到標題再開始，光玉和好感度還留著，
+    // 探索階段會因為光玉已經集滿而直接被跳過。
+    if (s.reset) {
+      newState();
+      backlog = [];
+      choiceSnapshot = null;
+      jumpToChoices = false;
+      updateRedoBtn();
+    }
+
     scene = s;
     state.scene = sceneId;
     state.line = 0;

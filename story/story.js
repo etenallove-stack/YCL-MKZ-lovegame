@@ -21,6 +21,14 @@ var CHARACTERS = {
     faces: ['smile', 'laugh', 'shy', 'troubled', 'confused', 'thinking', 'surprised', 'nervous',
             'crying', 'sad', 'angry', 'neutral', 'rage', 'flustered', 'smirk', 'deadpan']
   },
+  clerk: {
+    name: '店員',
+    dir: 'assets/characters/clerk',
+    pos: 'right',          // 站在櫃檯後面
+    faces: ['neutral', 'thumbsup', 'worried', 'rage',
+            'shocked', 'lovestruck', 'panic', 'skeptical',
+            'sigh', 'smug', 'confused', 'annoyed']
+  },
   mystery: {
     // 一開始只知道是「神秘的同學」，等他自報名號才換掉
     name: '神秘的同學',
@@ -83,6 +91,22 @@ var BACKGROUNDS = {
     fallback:
       'radial-gradient(circle at 18% 22%, rgba(255,170,205,.95) 0 20%, rgba(255,170,205,0) 46%),' +
       'linear-gradient(180deg,#5c86c9 0%,#9db6e0 26%,#e7c7cf 46%,#d9c3cd 58%,#9a93a6 72%,#7b7686 100%)'
+  },
+  store_front: {
+    label: '黃昏的商店街・便利商店門口',
+    fallback:
+      'radial-gradient(ellipse 70% 45% at 50% 62%, rgba(255,246,214,.85), rgba(255,246,214,0) 70%),' +
+      'linear-gradient(180deg,#8f8cc4 0%,#d8a2b0 30%,#f6c39a 48%,#d9cfc6 60%,#9d968f 100%)'
+  },
+  store_freezer: {
+    label: '便利商店・冰品櫃',
+    fallback: 'linear-gradient(180deg,#e9eef2 0%,#dfe7ec 45%,#cdd6dc 70%,#b9c2c8 100%)'
+  },
+  store_counter: {
+    label: '便利商店・結帳櫃檯',
+    fallback:
+      'radial-gradient(ellipse 60% 40% at 50% 20%, rgba(255,250,232,.9), rgba(255,250,232,0) 70%),' +
+      'linear-gradient(180deg,#efe6d6 0%,#e5d9c4 42%,#cbb894 62%,#b6a882 100%)'
   },
   corridor_hall: {
     label: '教室走廊',
@@ -147,6 +171,7 @@ var STORY = {
        =================================================================== */
     title_screen: {
       type: 'card',
+      reset: true,          // 每次回到標題都從乾淨的進度重新開始
       bg: 'title',
       bgm: 'spring_wind',
       text: '點擊開始遊戲',
@@ -584,13 +609,127 @@ var STORY = {
       next: 'card_end'
     },
 
-    // 結尾 CG。沒有 next，停在這裡收尾。
+    // 結尾 CG。duration: 0 代表停在這裡等玩家點畫面，點了才進彩蛋。
     card_end: {
       type: 'card',
       bg: 'finalendingscene',
       text: 'TO BE CONTINUED...',
       align: 'bottom',
-      sakura: 30
+      sakura: 30,
+      duration: 0,
+      next: 'card_bonus'
+    },
+
+    /* ===================================================================
+       彩蛋：載具之王
+       正篇結束後才會看到。店員是「許耀松」。
+       =================================================================== */
+    card_bonus: {
+      type: 'card',
+      text: '— 彩蛋 —\n載具之王',
+      duration: 2600,
+      next: 'bonus_1_store'
+    },
+
+    bonus_1_store: {
+      type: 'dialogue',
+      bg: 'store_front',
+      bgm: 'warm_daily',
+      clearChars: true,
+      lines: [
+        { who: 'narration', text: '放學後的夕陽把影子拉得很長。' },
+        { who: 'narration', text: '走下長坡後，空氣裡多了一點夏天的躁熱。' },
+        { who: 'heroine', face: 'smile', text: '「昱岑同學，今天天氣稍微有點熱呢。」' },
+        { who: 'hero',    face: 'smile', text: '「嗯，前面正好有一家 7-11，進去買支冰棒吃吧。」' },
+        { who: 'narration', bg: 'store_freezer', text: '推開便利商店的玻璃門，冷氣伴隨著熟悉的「叮咚」聲迎面撲來。' },
+        { who: 'narration', text: '冰櫃裡擺著各式各樣的冰品……' }
+      ],
+      choices: [
+        { text: '拿經典的蘇打冰棒',       goto: 'bonus_2a_soda',    affection: 0 },
+        { text: '拿濃郁的巧克力脆皮雪糕', goto: 'bonus_2b_choco',   affection: 0 },
+        { text: '拿超冷門的紅豆粉粿冰棒', goto: 'bonus_2c_redbean', affection: 0 }
+      ]
+    },
+
+    /* 櫃檯三幕：店員在右邊，昱岑在左邊。
+       孟格在這幾幕刻意不放立繪 —— 三個半身圖並排一定會疊到，
+       只顯示名字反而更像被晾在一旁插不上話。 */
+    bonus_2a_soda: {
+      type: 'dialogue',
+      bg: 'store_counter',
+      clearChars: true,
+      lines: [
+        { who: 'narration', text: '我們拿著蘇打冰棒走到櫃檯。' },
+        { who: 'narration', text: '櫃檯後站著一位身穿制服、眼神犀利的值班店員。' },
+        { who: 'clerk', face: 'skeptical', text: '「……蘇打冰棒？這位客人，你認真的嗎？」' },
+        { who: 'hero',  face: 'surprised', text: '「……蛤？」' },
+        { who: 'clerk', face: 'sigh',      text: '「這款色素味太重，融化又快，吃完舌頭還會變藍色。聽我的，旁邊的抹茶雪糕才是內行人的選擇。」' }
+      ],
+      next: 'bonus_3_carrier'
+    },
+
+    bonus_2b_choco: {
+      type: 'dialogue',
+      bg: 'store_counter',
+      clearChars: true,
+      lines: [
+        { who: 'narration', text: '我們拿著巧克力脆皮雪糕走到櫃檯。' },
+        { who: 'narration', text: '櫃檯後站著一位身穿制服、眼神犀利的值班店員。' },
+        { who: 'clerk', face: 'skeptical', text: '「嘖嘖嘖……又是巧克力脆皮。」' },
+        { who: 'hero',  face: 'deadpan',   text: '「這個怎麼了嗎？」' },
+        { who: 'clerk', face: 'neutral',   text: '「第一口咬下去脆皮直接掉滿地，裡面的香草又太甜，吃完更渴。旁邊新出的草莓大福明明香多了。」' }
+      ],
+      next: 'bonus_3_carrier'
+    },
+
+    bonus_2c_redbean: {
+      type: 'dialogue',
+      bg: 'store_counter',
+      bgm: 'comedy_tense',      // 「搞笑緊張的旋律」，音檔還沒有，會沿用上一首
+      clearChars: true,
+      lines: [
+        { who: 'narration', text: '我們拿著紅豆粉粿冰棒走到櫃檯。' },
+        { who: 'narration', text: '櫃檯後站著一位身穿制服、眼神犀利的值班店員。' },
+        { who: 'clerk', face: 'shocked', text: '「你年紀輕輕，為什麼要買阿公阿嬤在吃的口味？」' },
+        { who: 'hero',  face: 'angry',   text: '「這很好吃好嗎！」' },
+        { who: 'clerk', face: 'smug',    text: '「裡面的粉粿凍硬了根本咬不動。想吃甜的去拿布丁雪糕啦，相信專業好不好。」' }
+      ],
+      next: 'bonus_3_carrier'
+    },
+
+    bonus_3_carrier: {
+      type: 'dialogue',
+      bg: 'store_counter',
+      lines: [
+        { who: 'heroine', text: '「那、那個……請問這支冰棒可以結帳了嗎？」' },
+        { who: 'clerk', face: 'sigh',    text: '「而且這款今天甚至沒有第二件六折，買了根本血虧。要不要我幫你們換一支？」' },
+        { who: 'hero',  face: 'rage', effect: 'shake',
+          text: '「吵死了！我就要吃這支！不要管我買什麼，趕快給我刷載具啦！！」' },
+        { who: 'narration', text: '店員愣了兩秒，默默拿起了條碼掃描槍。' },
+        { who: 'clerk', face: 'annoyed', text: '「……嗶！載具已儲存。發票沒中不要怪我喔。」' },
+
+        // 讓店員退場，孟格才有位置出來笑
+        { who: 'narration', hide: 'clerk', text: '結完帳，我們拎著冰棒走出自動門。' },
+        { who: 'heroine', face: 'laugh', text: '「噗……昱岑同學，你的朋友真有精神呢。」' },
+        { who: 'hero',    face: 'troubled', text: '「……誰跟他是朋友啊。」' },
+        { who: 'narration', text: '落日餘暉下，吃著被店員嫌棄的冰棒，今天也是熱鬧又幸福的一天。' }
+      ],
+      next: 'card_title_king'
+    },
+
+    card_title_king: {
+      type: 'card',
+      bg: 'store_front',
+      text: '彩蛋完成\n獲得稱號「載具之王」',
+      duration: 0,
+      next: 'card_thanks'
+    },
+
+    card_thanks: {
+      type: 'card',
+      text: '感謝遊玩',
+      duration: 0,
+      next: 'title_screen'
     }
   }
 };
