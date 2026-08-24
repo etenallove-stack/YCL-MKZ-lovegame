@@ -324,9 +324,11 @@ body {
   padding: 0 60px;
   font-size: 46px;
   font-weight: 300;
+  line-height: 1.5;
   letter-spacing: .28em;
   text-indent: .28em;          /* 補掉字距在尾端多出來的空白，才是真的置中 */
   text-align: center;
+  white-space: pre-wrap;       /* 讓劇本裡的換行真的換行 */
   color: #fff;
   text-shadow: 0 4px 26px rgba(0, 0, 0, .9);
   opacity: 0;
