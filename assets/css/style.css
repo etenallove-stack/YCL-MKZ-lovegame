@@ -103,7 +103,9 @@ body {
 
 /* ---------- 探索階段：可點擊的熱區 ---------- */
 
-#hotspots { position: absolute; inset: 0; }
+/* 要壓在 #card 上面（z-index 22），否則字卡會蓋住結尾藏的那個隱藏點，
+   滑鼠實際點下去會打在字卡上，熱區永遠觸發不了。 */
+#hotspots { position: absolute; inset: 0; z-index: 23; }
 
 .hotspot {
   position: absolute;
