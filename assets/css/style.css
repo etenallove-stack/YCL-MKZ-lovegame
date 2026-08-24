@@ -173,6 +173,37 @@ body {
   box-shadow: 0 0 40px 12px rgba(255, 226, 150, .4);
 }
 
+/* 隱藏點的微光：一小點一閃一閃的，像遠處校舍亮著的一盞燈。
+   刻意做得比一般熱區的呼吸光暈小很多，才不會被當成可收集的光玉。
+   這條規則要放在 .hotspot.secret::after 後面才蓋得掉它的 display:none。 */
+.hotspot.twinkle::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 13px; height: 13px;
+  margin: -6.5px 0 0 -6.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf2 0%, #ffe193 45%, rgba(255, 202, 92, 0) 72%);
+  box-shadow: 0 0 20px 7px rgba(255, 214, 130, .5);
+  opacity: 0;                       /* 動畫開始前先藏著 */
+  animation: twinkle 2.6s ease-in-out 1.2s infinite;
+}
+
+/* 移上去的時候停在最亮，當作「就是這裡」的回饋 */
+.hotspot.twinkle:hover::after {
+  animation-play-state: paused;
+  opacity: 1;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0;   transform: scale(.55); }
+  30%      { opacity: 1;   transform: scale(1.15); }
+  45%      { opacity: .28; transform: scale(.85); }
+  62%      { opacity: .95; transform: scale(1.08); }
+  80%      { opacity: .18; transform: scale(.8); }
+}
+
 /* 已經探索過的熱區收起光暈，避免玩家重複點 */
 .hotspot.done { animation: none; opacity: .18; background: none; box-shadow: none; }
 .hotspot.done::before { animation: none; opacity: 0; }

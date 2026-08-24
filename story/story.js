@@ -625,7 +625,8 @@ var STORY = {
         {
           id: 'secret_number',
           label: '遠處的校舍',
-          secret: true,
+          secret: true,        // 不用一般熱區那種呼吸光暈
+          twinkle: true,       // 改成一小點微光閃爍，吸引目光但不像可收集的光玉
           repeatable: true,
           x: 43, y: 17, w: 17, h: 18,
           reveal: '9',

@@ -612,7 +612,8 @@ var Game = (function () {
       d.style.width  = h.w + '%';
       d.style.height = h.h + '%';
       d.title = h.label || '';
-      if (h.secret) d.classList.add('secret');   // 彩蛋：不發光，讓玩家自己找
+      if (h.secret) d.classList.add('secret');    // 彩蛋：不發光，讓玩家自己找
+      if (h.twinkle) d.classList.add('twinkle');  // 一小點微光閃爍，吸引目光但不像光玉
       if (state.done[state.scene + ':' + h.id] && !h.repeatable) d.classList.add('done');
 
       d.addEventListener('click', function (e) {
