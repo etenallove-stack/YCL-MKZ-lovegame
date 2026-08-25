@@ -81,8 +81,13 @@ var BACKGROUNDS = {
       'radial-gradient(circle at 50% 78%, rgba(255,220,170,.9) 0 18%, rgba(255,220,170,0) 46%),' +
       'linear-gradient(180deg,#ffb87a 0%,#ffd0a0 30%,#f4c9cf 52%,#d8bcc4 70%,#a89aa0 100%)'
   },
+  ending_apart: {
+    label: '結尾 CG・並肩站著（非真結局）',
+    fallback:
+      'linear-gradient(180deg,#f9b184 0%,#f8cbaa 28%,#f0c6cf 52%,#cfb1bc 74%,#9b8d95 100%)'
+  },
   finalendingscene: {
-    label: '結尾 CG・並肩走上坡道',
+    label: '結尾 CG・牽著手（真結局）',
     fallback:
       'linear-gradient(180deg,#f8a97e 0%,#f7c8a6 28%,#efc3cd 52%,#d0b2bd 74%,#9d8f97 100%)'
   },
@@ -680,7 +685,7 @@ var STORY = {
       text: '結局　二　\n剛剛好的距離\n\n好感度 {affection} ／ 10\n\n' +
             '還有一個神祕數字\n要好感度更高才找得到',
       duration: 0,
-      next: 'card_end'
+      next: 'card_end_alt'
     },
 
     card_end_distant: {
@@ -689,10 +694,12 @@ var STORY = {
       text: '結局　三　\n沒說出口的話\n\n好感度 {affection} ／ 10\n\n' +
             '還有一個神祕數字\n要好感度更高才找得到',
       duration: 0,
-      next: 'card_end'
+      next: 'card_end_alt'
     },
 
-    // 結尾 CG。duration: 0 代表停在這裡等玩家點畫面，點了才進彩蛋。
+    /* 真結局專用的結尾 CG（兩人牽著手走上坡道）。
+       神祕數字就藏在這一幕，所以只有真結局的人拿得到。
+       duration: 0 代表停在這裡等玩家點畫面。 */
     card_end: {
       type: 'card',
       bg: 'finalendingscene',
@@ -700,17 +707,9 @@ var STORY = {
       align: 'bottom',
       sakura: 30,
       duration: 0,
+      next: 'card_bonus',
       // 找到藏起來的數字才放行，這樣彩蛋才是「解開謎題」的獎勵
       requireFound: 'secret_number',
-      // 而且要走到真結局（好感度 >= 8）才看得到彩蛋。
-      // 沒達標的人會被導到 card_more，那張字卡會暗示「還有東西沒看到」。
-      nextBy: {
-        key: 'affection',
-        rules: [
-          { min: 8, goto: 'card_bonus' },
-          { goto: 'card_more' }
-        ]
-      },
 
       // 藏起來的解謎數字。secret 代表不發光，玩家要自己注意到；
       // 滑鼠移過去才會有微弱反應。點畫面其他地方仍然照常進彩蛋。
@@ -721,9 +720,6 @@ var STORY = {
           secret: true,        // 不用一般熱區那種呼吸光暈
           twinkle: true,       // 改成一小點微光閃爍，吸引目光但不像可收集的光玉
           repeatable: true,
-          // 只有走到真結局才會出現。沒達標的人連那點光都看不到，
-          // 引擎也會自動跳過 requireFound 的檢查，不會把人卡在這裡。
-          showIf: { key: 'affection', min: 8 },
           // 範圍要夠大，手機上換算下來才有 44px 以上，手指按得到
           x: 43, y: 15, w: 17, h: 22,
           reveal: '9',
@@ -837,6 +833,18 @@ var STORY = {
       text: '彩蛋完成\n獲得稱號「載具之王」',
       duration: 0,
       next: 'card_thanks'
+    },
+
+    /* 非真結局的結尾 CG（兩人並肩站著，沒有牽手）。
+       這一幕沒有藏數字 —— 神祕數字是真結局才有的獎勵。 */
+    card_end_alt: {
+      type: 'card',
+      bg: 'ending_apart',
+      text: 'TO BE CONTINUED...',
+      align: 'bottom',
+      sakura: 24,
+      duration: 0,
+      next: 'card_more'
     },
 
     card_thanks: {
