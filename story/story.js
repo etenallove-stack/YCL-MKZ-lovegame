@@ -618,6 +618,8 @@ var STORY = {
       sakura: 30,
       duration: 0,
       next: 'card_bonus',
+      // 找到藏起來的數字才放行，這樣彩蛋才是「解開謎題」的獎勵
+      requireFound: 'secret_number',
 
       // 藏起來的解謎數字。secret 代表不發光，玩家要自己注意到；
       // 滑鼠移過去才會有微弱反應。點畫面其他地方仍然照常進彩蛋。

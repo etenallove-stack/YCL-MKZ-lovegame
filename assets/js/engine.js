@@ -473,6 +473,7 @@ var Game = (function () {
     if (scene.pulse) el.card.classList.add('pulse');
     el.cardText.textContent = scene.text || '';
     el.card.hidden = false;
+    stuckCount = 0;
     setTimeout(function () { el.card.classList.add('shown'); }, 40);
 
     if (scene.text) backlog.push({ who: '', text: scene.text });
@@ -487,8 +488,29 @@ var Game = (function () {
     }
   }
 
+  /**
+   * requireFound: 指定一個熱區 id，沒找到之前不讓玩家離開這一幕。
+   * 用在結尾那個解謎數字 —— 找到才算真的破關。
+   * 提示會隨著點擊次數越講越白，免得有人永遠卡在這裡。
+   */
+  var stuckCount = 0;
+
+  var STUCK_HINTS = [
+    '……好像還有什麼沒看完。',
+    '再看一次畫面，有東西在閃。',
+    '那道光在遠方，坡道的盡頭。',
+    '校舍那邊。點下去看看。'
+  ];
+
   function skipCard() {
     if (!scene.next) return;
+
+    if (scene.requireFound && !state.done[state.scene + ':' + scene.requireFound]) {
+      toast(STUCK_HINTS[Math.min(stuckCount, STUCK_HINTS.length - 1)]);
+      stuckCount++;
+      return;
+    }
+
     clearTimeout(cardTimer);
     cardTimer = null;
     goto(scene.next);
