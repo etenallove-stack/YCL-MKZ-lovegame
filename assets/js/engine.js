@@ -474,7 +474,8 @@ var Game = (function () {
     if (scene.bg) el.card.classList.add('over-image');
     if (scene.align === 'bottom') el.card.classList.add('align-bottom');
     if (scene.pulse) el.card.classList.add('pulse');
-    el.cardText.textContent = scene.text || '';
+    // {affection} 會換成目前的好感度，結局字卡用得到
+    el.cardText.textContent = (scene.text || '').replace('{affection}', state.affection);
     el.card.hidden = false;
     stuckCount = 0;
     setTimeout(function () { el.card.classList.add('shown'); }, 40);
@@ -536,9 +537,27 @@ var Game = (function () {
     playLines(scene.lines || [], endOfDialogue);
   }
 
+  /**
+   * 依好感度（或其他數值）決定下一幕。
+   *   nextBy: { key:'affection', rules:[ {min:7,goto:'A'}, {min:5,goto:'B'}, {goto:'C'} ] }
+   * 由上往下比，第一個符合的就用；沒寫 min 的當成保底。
+   */
+  function resolveNextBy(nb) {
+    var v = (nb.key === 'affection') ? state.affection : (state.flags[nb.key] || 0);
+    for (var i = 0; i < nb.rules.length; i++) {
+      var r = nb.rules[i];
+      if (r.min == null || v >= r.min) return r.goto;
+    }
+    return null;
+  }
+
   function endOfDialogue() {
     if (scene.choices && scene.choices.length) {
       showChoices(scene.choices);
+    } else if (scene.nextBy) {
+      var target = resolveNextBy(scene.nextBy);
+      if (target) goto(target);
+      else console.error('nextBy 沒有符合的規則：' + state.scene);
     } else if (scene.next) {
       goto(scene.next);
     } else {

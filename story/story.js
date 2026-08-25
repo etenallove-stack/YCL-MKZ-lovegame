@@ -607,6 +607,83 @@ var STORY = {
         { who: 'narration', text: '她邁出了停滯已久的腳步，與我並肩走上了這條長長的坡道。' },
         { who: 'narration', text: '坡道的頂端是滿開的櫻花與明亮的校舍，而我們的故事，才剛剛開始——' }
       ],
+      // 依累積的好感度分成三種結局。
+      // 目前的配分讓總分落在 4～7 之間（第1幕 1~2 ＋ 第3幕 1~2 ＋ 第5幕 2~3）。
+      nextBy: {
+        key: 'affection',
+        rules: [
+          { min: 7, goto: 'end_true' },     // 每一步都選最貼近她的
+          { min: 5, goto: 'end_normal' },
+          { goto: 'end_distant' }           // 保底：全程最保守的走法
+        ]
+      }
+    },
+
+    /* ===================================================================
+       三種結局（依好感度）
+       =================================================================== */
+    end_true: {
+      type: 'dialogue',
+      bg: 'topofsakura',
+      sakura: 60,
+      lines: [
+        { who: 'heroine', face: 'laugh', text: '「昱岑同學，等等我——！」' },
+        { who: 'narration', text: '她小跑著追上來，和我並肩站在坡道的頂端。' },
+        { who: 'heroine', face: 'smile', text: '「從今天起，這條坡道就不只是上學的路了。」' },
+        { who: 'heroine', face: 'shy',   text: '「是……我們一起走過的路。」' },
+        { who: 'hero',    face: 'shy',   text: '「嗯。明天也一起走吧。」' },
+        { who: 'narration', text: '她用力點了點頭，笑得比滿樹的櫻花還要燦爛。' }
+      ],
+      next: 'card_end_true'
+    },
+
+    end_normal: {
+      type: 'dialogue',
+      bg: 'topofsakura',
+      sakura: 46,
+      lines: [
+        { who: 'heroine', face: 'smile', text: '「昱岑同學，今天謝謝你。」' },
+        { who: 'hero',    face: 'smile', text: '「不用謝啦，我也沒做什麼。」' },
+        { who: 'heroine', face: 'shy',   text: '「有的。你願意聽我說話，這件事本身就很重要。」' },
+        { who: 'narration', text: '我們並肩走上坡道，中間隔著一個剛剛好的距離。' },
+        { who: 'narration', text: '那個距離，也許再過一陣子，就會慢慢變近吧。' }
+      ],
+      next: 'card_end_normal'
+    },
+
+    end_distant: {
+      type: 'dialogue',
+      bg: 'topofsakura',
+      sakura: 30,
+      lines: [
+        { who: 'heroine', face: 'smile',   text: '「那……我先進去了。」' },
+        { who: 'hero',    face: 'neutral', text: '「嗯，路上小心。」' },
+        { who: 'narration', text: '她朝校舍走去，走了幾步又回過頭，像是想說什麼。' },
+        { who: 'narration', text: '但最後只是揮了揮手。' },
+        { who: 'narration', text: '坡道還是那條坡道。只是我們之間，還隔著一段沒說出口的話。' }
+      ],
+      next: 'card_end_distant'
+    },
+
+    card_end_true: {
+      type: 'card',
+      text: '結局　一　\n並肩的坡道\n\n好感度 {affection} ／ 7',
+      duration: 0,
+      next: 'card_end'
+    },
+
+    card_end_normal: {
+      type: 'card',
+      text: '結局　二　\n剛剛好的距離\n\n好感度 {affection} ／ 7',
+      duration: 0,
+      next: 'card_end'
+    },
+
+    card_end_distant: {
+      type: 'card',
+      mono: true,
+      text: '結局　三　\n沒說出口的話\n\n好感度 {affection} ／ 7',
+      duration: 0,
       next: 'card_end'
     },
 
