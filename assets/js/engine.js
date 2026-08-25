@@ -486,8 +486,8 @@ var Game = (function () {
     if (scene.hotspots && scene.hotspots.length) buildHotspots();
 
     // duration: 0 代表不自動前進，等玩家點畫面（標題畫面用的就是這個）
-    if (scene.next && scene.duration !== 0) {
-      cardTimer = setTimeout(function () { goto(scene.next); },
+    if (cardNext() && scene.duration !== 0) {
+      cardTimer = setTimeout(function () { goto(cardNext()); },
                              scene.duration == null ? 3000 : scene.duration);
     }
   }
@@ -506,18 +506,33 @@ var Game = (function () {
     '校舍那邊。點下去看看。'
   ];
 
-  function skipCard() {
-    if (!scene.next) return;
+  /** 字卡的下一幕：nextBy 優先，沒有才用 next */
+  function cardNext() {
+    if (scene.nextBy) return resolveNextBy(scene.nextBy);
+    return scene.next || null;
+  }
 
-    if (scene.requireFound && !state.done[state.scene + ':' + scene.requireFound]) {
-      toast(STUCK_HINTS[Math.min(stuckCount, STUCK_HINTS.length - 1)]);
-      stuckCount++;
-      return;
+  function skipCard() {
+    if (!cardNext()) return;
+
+    // 沒找到指定的熱區就不放行。
+    // 但只有「那個熱區這一輪真的會出現」時才擋 —— 熱區有 showIf 條件，
+    // 條件沒達成時它根本不存在，這時候還擋著會讓玩家永遠出不去。
+    if (scene.requireFound) {
+      var need = null;
+      (scene.hotspots || []).forEach(function (h) {
+        if (h.id === scene.requireFound) need = h;
+      });
+      if (need && condMet(need.showIf) && !state.done[state.scene + ':' + scene.requireFound]) {
+        toast(STUCK_HINTS[Math.min(stuckCount, STUCK_HINTS.length - 1)]);
+        stuckCount++;
+        return;
+      }
     }
 
     clearTimeout(cardTimer);
     cardTimer = null;
-    goto(scene.next);
+    goto(cardNext());
   }
 
   /* ---------------- 對話場景 ---------------- */
@@ -542,6 +557,18 @@ var Game = (function () {
    *   nextBy: { key:'affection', rules:[ {min:7,goto:'A'}, {min:5,goto:'B'}, {goto:'C'} ] }
    * 由上往下比，第一個符合的就用；沒寫 min 的當成保底。
    */
+  /**
+   * 條件判斷，給熱區的 showIf 用：{ key:'affection', min:8 }
+   * 沒寫條件就一律成立。
+   */
+  function condMet(cond) {
+    if (!cond) return true;
+    var v = (cond.key === 'affection') ? state.affection : (state.flags[cond.key] || 0);
+    if (cond.min != null && v < cond.min) return false;
+    if (cond.max != null && v > cond.max) return false;
+    return true;
+  }
+
   function resolveNextBy(nb) {
     var v = (nb.key === 'affection') ? state.affection : (state.flags[nb.key] || 0);
     for (var i = 0; i < nb.rules.length; i++) {
@@ -647,6 +674,7 @@ var Game = (function () {
     el.hotspots.innerHTML = '';
     clearProps();
     (scene.hotspots || []).forEach(function (h) {
+      if (!condMet(h.showIf)) return;   // 條件沒達成就整個不放出來
       addProp(h);
 
       var d = document.createElement('div');

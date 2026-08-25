@@ -320,7 +320,7 @@ var STORY = {
         { who: 'narration', text: '孟格從紙袋裡拿出那個紅豆麵包，輕輕掰開了一半遞過來。' }
       ],
       choices: [
-        { text: '開心地接過來並道謝',     goto: 'act2a_bread', affection: 2 },
+        { text: '開心地接過來並道謝',     goto: 'act2a_bread', affection: 4 },
         { text: '說自己不餓但陪她聊天',   goto: 'act2b_bench', affection: 1 },
         { text: '我要吃旭集',             goto: 'act2c_fail',  affection: 0 }
       ]
@@ -459,7 +459,7 @@ var STORY = {
         { who: 'heroine', face: 'shy',       text: '「那個……昱岑同學，你覺得像我這樣的人，能做到嗎？」' }
       ],
       choices: [
-        { text: '一定沒問題，我也會幫妳',       goto: 'act4a_promise',   affection: 2 },
+        { text: '一定沒問題，我也會幫妳',       goto: 'act4a_promise',   affection: 3 },
         { text: '雖然很難，但試試看也不錯',     goto: 'act4b_firststep', affection: 1 },
         { text: '指著黑板問「這是糰子嗎」',     goto: 'act4c_dango',     affection: 2 }
       ]
@@ -529,7 +529,7 @@ var STORY = {
         { who: 'heroine', face: 'disappointed', text: '「快樂的事、開心的回憶，總有一天都會改變……就算這樣，也能繼續往前走嗎？」' }
       ],
       choices: [
-        { text: '只要去尋找下一個快樂的事就好了', goto: 'act6a_tomorrow', affection: 2 },
+        { text: '只要去尋找下一個快樂的事就好了', goto: 'act6a_tomorrow', affection: 1 },
         { text: '別害怕，我會一直在妳身邊',       goto: 'act6b_together', affection: 2 },
         { text: '牽起她的手直接邁步',             goto: 'act6c_hand',     affection: 3 }
       ]
@@ -608,13 +608,14 @@ var STORY = {
         { who: 'narration', text: '坡道的頂端是滿開的櫻花與明亮的校舍，而我們的故事，才剛剛開始——' }
       ],
       // 依累積的好感度分成三種結局。
-      // 目前的配分讓總分落在 4～7 之間（第1幕 1~2 ＋ 第3幕 1~2 ＋ 第5幕 2~3）。
+      // 配分是算過的：18 條路線的總分落在 3～10，用 8 和 6 當門檻剛好各 6 條，
+      // 三種結局各佔三分之一。動任何一個 affection 數字都會破壞這個平衡。
       nextBy: {
         key: 'affection',
         rules: [
-          { min: 7, goto: 'end_true' },     // 每一步都選最貼近她的
-          { min: 5, goto: 'end_normal' },
-          { goto: 'end_distant' }           // 保底：全程最保守的走法
+          { min: 8, goto: 'end_true' },
+          { min: 6, goto: 'end_normal' },
+          { goto: 'end_distant' }
         ]
       }
     },
@@ -667,14 +668,17 @@ var STORY = {
 
     card_end_true: {
       type: 'card',
-      text: '結局　一　\n並肩的坡道\n\n好感度 {affection} ／ 7',
+      text: '結局　一　\n並肩的坡道\n\n好感度 {affection} ／ 10',
       duration: 0,
       next: 'card_end'
     },
 
+    /* 非真結局的兩張字卡要明講「還有神祕數字沒拿到」。
+       玩家看到自己的分數不是滿分時，才知道那不是全部，也才會想再玩一次。 */
     card_end_normal: {
       type: 'card',
-      text: '結局　二　\n剛剛好的距離\n\n好感度 {affection} ／ 7',
+      text: '結局　二　\n剛剛好的距離\n\n好感度 {affection} ／ 10\n\n' +
+            '還有一個神祕數字\n要好感度更高才找得到',
       duration: 0,
       next: 'card_end'
     },
@@ -682,7 +686,8 @@ var STORY = {
     card_end_distant: {
       type: 'card',
       mono: true,
-      text: '結局　三　\n沒說出口的話\n\n好感度 {affection} ／ 7',
+      text: '結局　三　\n沒說出口的話\n\n好感度 {affection} ／ 10\n\n' +
+            '還有一個神祕數字\n要好感度更高才找得到',
       duration: 0,
       next: 'card_end'
     },
@@ -695,9 +700,17 @@ var STORY = {
       align: 'bottom',
       sakura: 30,
       duration: 0,
-      next: 'card_bonus',
       // 找到藏起來的數字才放行，這樣彩蛋才是「解開謎題」的獎勵
       requireFound: 'secret_number',
+      // 而且要走到真結局（好感度 >= 8）才看得到彩蛋。
+      // 沒達標的人會被導到 card_more，那張字卡會暗示「還有東西沒看到」。
+      nextBy: {
+        key: 'affection',
+        rules: [
+          { min: 8, goto: 'card_bonus' },
+          { goto: 'card_more' }
+        ]
+      },
 
       // 藏起來的解謎數字。secret 代表不發光，玩家要自己注意到；
       // 滑鼠移過去才會有微弱反應。點畫面其他地方仍然照常進彩蛋。
@@ -708,6 +721,9 @@ var STORY = {
           secret: true,        // 不用一般熱區那種呼吸光暈
           twinkle: true,       // 改成一小點微光閃爍，吸引目光但不像可收集的光玉
           repeatable: true,
+          // 只有走到真結局才會出現。沒達標的人連那點光都看不到，
+          // 引擎也會自動跳過 requireFound 的檢查，不會把人卡在這裡。
+          showIf: { key: 'affection', min: 8 },
           // 範圍要夠大，手機上換算下來才有 44px 以上，手指按得到
           x: 43, y: 15, w: 17, h: 22,
           reveal: '9',
@@ -826,6 +842,16 @@ var STORY = {
     card_thanks: {
       type: 'card',
       text: '感謝遊玩',
+      duration: 0,
+      next: 'title_screen'
+    },
+
+    /* 沒走到真結局的人看到的收尾。
+       明講「還有東西沒看到」＋給出方向，才會有人想再玩一次；
+       只寫「感謝遊玩」的話，玩家根本不知道自己錯過了彩蛋。 */
+    card_more: {
+      type: 'card',
+      text: '感謝遊玩\n\n你還沒拿到那個神祕數字。\n再玩一次，讓她更開心一點就看得到了。',
       duration: 0,
       next: 'title_screen'
     }
