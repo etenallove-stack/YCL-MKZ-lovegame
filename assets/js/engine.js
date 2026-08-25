@@ -403,6 +403,9 @@ var Game = (function () {
     // 標記 reset 的場景代表「一輪的起點」（標題畫面）。
     // 沒有這個的話，玩完一輪回到標題再開始，光玉和好感度還留著，
     // 探索階段會因為光玉已經集滿而直接被跳過。
+    // 失敗結局把整個畫面轉成黑白
+    el.stage.classList.toggle('mono', !!s.mono);
+
     // 已經在主畫面就不用再顯示「回到主畫面」
     el.homeBtn.hidden = !!s.reset;
     disarmHome();
@@ -686,7 +689,7 @@ var Game = (function () {
     if (h.effect) runEffect(h.effect, cx, cy);
     if (h.reveal) {
       if (revealed) revealed.remove();
-      revealed = Effects.reveal(h.reveal);
+      revealed = Effects.reveal(h.reveal, h.revealSub);
     }
 
     var firstTime = !state.done[key];

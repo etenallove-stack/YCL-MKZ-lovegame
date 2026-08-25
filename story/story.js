@@ -378,6 +378,7 @@ var STORY = {
     ending_fail: {
       type: 'dialogue',
       bgm: 'ending_fail',
+      mono: true,          // 整個畫面轉成黑白
       clearChars: true,
       lines: [
         { who: 'narration', text: '—— 挑戰失敗 ——' },
@@ -633,6 +634,8 @@ var STORY = {
           // 範圍要夠大，手機上換算下來才有 44px 以上，手指按得到
           x: 43, y: 15, w: 17, h: 22,
           reveal: '9',
+          // 分兩行 —— 併成一行在手機上會寬到貼著螢幕邊緣
+          revealSub: '記住這個數字\n還有彩蛋，先別離開',
           foundHint: '記住這個數字。'
         }
       ]

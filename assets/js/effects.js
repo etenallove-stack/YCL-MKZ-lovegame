@@ -234,11 +234,20 @@ var Effects = (function () {
    * 在畫面正中央浮現一個大大的發光文字（藏起來的解謎數字用這個）。
    * 回傳一個可以 remove 的把手，換場景時由引擎收掉。
    */
-  function reveal(text) {
+  function reveal(text, sub) {
     var stage = document.getElementById('stage');
     var el = document.createElement('div');
     el.className = 'reveal-num';
     el.textContent = text;
+
+    // 數字底下再掛一行小字（例如提醒還有彩蛋）
+    if (sub) {
+      var s = document.createElement('span');
+      s.className = 'reveal-sub';
+      s.textContent = sub;
+      el.appendChild(s);
+    }
+
     stage.appendChild(el);
 
     flash(0.55, 700);
