@@ -849,7 +849,7 @@ var STORY = {
 
     card_thanks: {
       type: 'card',
-      text: '感謝遊玩',
+      text: '感謝遊玩\n\nYCL & MKZ',
       duration: 0,
       next: 'title_screen'
     },
@@ -860,7 +860,7 @@ var STORY = {
     card_more: {
       type: 'card',
       // 換成粗宋體之後字變寬了，這句原本一行有 1180px、只剩 100px 餘裕，拆成兩行
-      text: '感謝遊玩\n\n你還沒拿到那個神祕數字。\n再玩一次，\n讓她更開心一點就看得到了。',
+      text: '感謝遊玩\n\n你還沒拿到那個神祕數字。\n再玩一次，\n讓她更開心一點就看得到了。\n\nYCL & MKZ',
       duration: 0,
       next: 'title_screen'
     }
