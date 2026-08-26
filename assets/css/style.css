@@ -410,8 +410,12 @@ body {
 
 #cardText {
   padding: 0 60px;
+  /* 粗宋體。思源宋體來自 Google Fonts，後面幾個是 Windows／macOS 內建的明體，
+     離線時才不會掉回黑體。 */
+  font-family: "Noto Serif TC", "PMingLiU", "MingLiU", "SimSun",
+               "Songti TC", "Source Han Serif TC", serif;
   font-size: 46px;
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1.5;
   letter-spacing: .28em;
   text-indent: .28em;          /* 補掉字距在尾端多出來的空白，才是真的置中 */
